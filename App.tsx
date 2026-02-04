@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { INITIAL_USER_DATA, INDIAN_STATES } from './constants';
 import { UserData, EntryRoute, CourseLevel, Status } from './types';
 import { Dashboard } from './components/Dashboard';
-import { Settings, Moon, Sun, ShieldCheck, GraduationCap } from 'lucide-react';
+import { Auth } from './components/Auth';
+import { Settings, Moon, Sun, ShieldCheck, GraduationCap, LogOut, User } from 'lucide-react';
+import { getCurrentUserLocal, getUserData, saveUserData, setCurrentUserLocal } from './utils/userStorage';
 
 const App: React.FC = () => {
+  const [currentUser, setCurrentUser] = useState<string | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
   const [darkMode, setDarkMode] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(1);
@@ -12,9 +15,13 @@ const App: React.FC = () => {
 
   // Load state from local storage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('ca-tracker-data');
-    if (saved) {
-      setUserData(JSON.parse(saved));
+    const user = getCurrentUserLocal();
+    if (user) {
+      setCurrentUser(user);
+      const saved = getUserData(user);
+      if (saved) {
+        setUserData(saved);
+      }
     }
     const theme = localStorage.getItem('ca-theme');
     if (theme === 'dark') {
@@ -25,10 +32,18 @@ const App: React.FC = () => {
 
   // Save state
   useEffect(() => {
-    if (userData) {
-      localStorage.setItem('ca-tracker-data', JSON.stringify(userData));
+    if (currentUser && userData) {
+      saveUserData(currentUser, userData);
     }
-  }, [userData]);
+  }, [userData, currentUser]);
+
+  const handleLogout = () => {
+    setCurrentUserLocal(null);
+    setCurrentUser(null);
+    setUserData(null);
+    setOnboardingStep(1);
+    setTempUser({ ...INITIAL_USER_DATA });
+  };
 
   // Toggle Theme
   const toggleTheme = () => {
@@ -75,6 +90,19 @@ const App: React.FC = () => {
 
     setUserData(finalData as UserData);
   };
+
+  const handleLogin = (user: string) => {
+    setCurrentUser(user);
+    const saved = getUserData(user);
+    if (saved) {
+      setUserData(saved);
+    }
+  };
+
+  // Auth Screen if not logged in
+  if (!currentUser) {
+    return <Auth onLogin={handleLogin} />;
+  }
 
   // Onboarding Screen
   if (!userData) {
@@ -213,22 +241,37 @@ const App: React.FC = () => {
               {darkMode ? <Sun className="w-5 h-5 text-yellow-400" /> : <Moon className="w-5 h-5 text-slate-600" />}
             </button>
             <button
+              onClick={handleLogout}
+              className="px-3 py-1.5 rounded-lg flex items-center gap-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+              title="Sign Out"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden md:inline">Logout</span>
+            </button>
+            <button
               onClick={() => {
-                if (confirm('Reset all progress data?')) {
-                  localStorage.removeItem('ca-tracker-data');
-                  setUserData(null);
+                if (confirm('Reset all progress data for this account?')) {
+                  const empty = { ...INITIAL_USER_DATA, name: currentUser };
+                  setUserData(empty as UserData);
                   setOnboardingStep(1);
                   setTempUser({ ...INITIAL_USER_DATA });
                 }
               }}
               className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-              title="Reset Data"
+              title="Reset Account Data"
             >
               <Settings className="w-5 h-5 text-slate-600 dark:text-slate-400" />
             </button>
           </div>
         </div>
       </nav>
+
+      <div className="max-w-5xl mx-auto px-4 py-2 mb-4">
+        <div className="flex items-center gap-2 text-slate-500 text-sm">
+          <User className="w-4 h-4" />
+          <span>Logged in as: <span className="font-bold text-slate-900 dark:text-white">{currentUser}</span></span>
+        </div>
+      </div>
 
       <Dashboard userData={userData} setUserData={setUserData} />
 
