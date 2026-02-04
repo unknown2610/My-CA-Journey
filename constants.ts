@@ -4,40 +4,40 @@ import { UserData, EntryRoute, CourseLevel, Status, PeerProfile } from './types'
 
 export const INDIAN_STATES = [
   "Andaman and Nicobar Islands",
-  "Andhra Pradesh", 
-  "Arunachal Pradesh", 
-  "Assam", 
-  "Bihar", 
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
   "Chandigarh",
-  "Chhattisgarh", 
+  "Chhattisgarh",
   "Dadra and Nagar Haveli and Daman and Diu",
   "Delhi",
-  "Goa", 
-  "Gujarat", 
-  "Haryana", 
-  "Himachal Pradesh", 
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
   "Jammu and Kashmir",
-  "Jharkhand", 
-  "Karnataka", 
-  "Kerala", 
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
   "Ladakh",
   "Lakshadweep",
-  "Madhya Pradesh", 
-  "Maharashtra", 
-  "Manipur", 
-  "Meghalaya", 
-  "Mizoram", 
-  "Nagaland", 
-  "Odisha", 
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
   "Puducherry",
-  "Punjab", 
-  "Rajasthan", 
-  "Sikkim", 
-  "Tamil Nadu", 
-  "Telangana", 
-  "Tripura", 
-  "Uttar Pradesh", 
-  "Uttarakhand", 
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
   "West Bengal"
 ];
 
@@ -94,62 +94,7 @@ export const MOTIVATIONAL_QUOTES = [
   "You are capable of more than you know."
 ];
 
-export const MOCK_PEERS: PeerProfile[] = [
-  {
-    id: 'p1',
-    name: 'Rahul Sharma',
-    state: 'Maharashtra',
-    entryRoute: EntryRoute.Foundation,
-    currentLevel: CourseLevel.Intermediate,
-    registrationDate: '2023-01-15',
-    progressPercentage: 45,
-    foundation: { status: Status.Completed, papers: [] },
-    intermediate: { 
-      group1: { id: 'g1', name: 'G1', status: Status.Completed, subjects: [] }, 
-      group2: { id: 'g2', name: 'G2', status: Status.InProgress, subjects: [] }, 
-      icitss: { id: 'it', name: 'IT', duration: '4 Weeks', status: Status.Completed, requiredForLevel: CourseLevel.Intermediate } 
-    },
-    articleship: { status: Status.Pending, leavesTaken: 0, industrialTraining: false },
-    selfPacedModules: { setA: { id: 'a', name: 'A', status: Status.Pending }, setB: { id: 'b', name: 'B', status: Status.Pending }, setC: { id: 'c', name: 'C', status: Status.Pending }, setD: { id: 'd', name: 'D', status: Status.Pending } },
-    final: { group1: { id: 'fg1', name: 'FG1', status: Status.Pending, subjects: [] }, group2: { id: 'fg2', name: 'FG2', status: Status.Pending, subjects: [] }, advIcitss: { id: 'ait', name: 'AdvIT', duration: '4 Weeks', status: Status.Pending, requiredForLevel: CourseLevel.Final } }
-  },
-  {
-    id: 'p2',
-    name: 'Priya Iyer',
-    state: 'Tamil Nadu',
-    entryRoute: EntryRoute.DirectEntry,
-    currentLevel: CourseLevel.Final,
-    registrationDate: '2021-06-10',
-    progressPercentage: 75,
-    foundation: { status: Status.Completed, papers: [] },
-    intermediate: { 
-      group1: { id: 'g1', name: 'G1', status: Status.Completed, subjects: [] }, 
-      group2: { id: 'g2', name: 'G2', status: Status.Completed, subjects: [] }, 
-      icitss: { id: 'it', name: 'IT', duration: '4 Weeks', status: Status.Completed, requiredForLevel: CourseLevel.Intermediate } 
-    },
-    articleship: { status: Status.Completed, leavesTaken: 12, industrialTraining: true },
-    selfPacedModules: { setA: { id: 'a', name: 'A', status: Status.Completed }, setB: { id: 'b', name: 'B', status: Status.Completed }, setC: { id: 'c', name: 'C', status: Status.Pending }, setD: { id: 'd', name: 'D', status: Status.Pending } },
-    final: { group1: { id: 'fg1', name: 'FG1', status: Status.InProgress, subjects: [] }, group2: { id: 'fg2', name: 'FG2', status: Status.Pending, subjects: [] }, advIcitss: { id: 'ait', name: 'AdvIT', duration: '4 Weeks', status: Status.Completed, requiredForLevel: CourseLevel.Final } }
-  },
-  {
-    id: 'p3',
-    name: 'Amit Patel',
-    state: 'Gujarat',
-    entryRoute: EntryRoute.Foundation,
-    currentLevel: CourseLevel.Foundation,
-    registrationDate: '2024-02-01',
-    progressPercentage: 10,
-    foundation: { status: Status.InProgress, papers: [] },
-    intermediate: { 
-      group1: { id: 'g1', name: 'G1', status: Status.Pending, subjects: [] }, 
-      group2: { id: 'g2', name: 'G2', status: Status.Pending, subjects: [] }, 
-      icitss: { id: 'it', name: 'IT', duration: '4 Weeks', status: Status.Pending, requiredForLevel: CourseLevel.Intermediate } 
-    },
-    articleship: { status: Status.Pending, leavesTaken: 0, industrialTraining: false },
-    selfPacedModules: { setA: { id: 'a', name: 'A', status: Status.Pending }, setB: { id: 'b', name: 'B', status: Status.Pending }, setC: { id: 'c', name: 'C', status: Status.Pending }, setD: { id: 'd', name: 'D', status: Status.Pending } },
-    final: { group1: { id: 'fg1', name: 'FG1', status: Status.Pending, subjects: [] }, group2: { id: 'fg2', name: 'FG2', status: Status.Pending, subjects: [] }, advIcitss: { id: 'ait', name: 'AdvIT', duration: '4 Weeks', status: Status.Pending, requiredForLevel: CourseLevel.Final } }
-  },
-];
+export const MOCK_PEERS: PeerProfile[] = [];
 
 export const INITIAL_USER_DATA: UserData = {
   name: 'Student',
