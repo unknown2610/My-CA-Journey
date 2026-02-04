@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { UserCircle, Lock, UserPlus, LogIn, GraduationCap } from 'lucide-react';
-import { getStoredUsers, saveUserCredential, setCurrentUserLocal } from '../utils/userStorage';
+import { UserCircle, Lock, UserPlus, LogIn, GraduationCap, Loader2 } from 'lucide-react';
+import { loginUser, signupUser, setCurrentUserLocal } from '../utils/userStorage';
 
 interface AuthProps {
     onLogin: (username: string) => void;
@@ -11,34 +11,41 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
 
         if (!username || !password) {
             setError('Please fill in all fields');
+            setLoading(false);
             return;
         }
 
-        const users = getStoredUsers();
-
-        if (isLogin) {
-            const user = users.find(u => u.username === username && u.passwordHash === password);
-            if (user) {
-                setCurrentUserLocal(username);
-                onLogin(username);
+        try {
+            if (isLogin) {
+                const result = await loginUser({ username, passwordHash: password });
+                if (result.success) {
+                    setCurrentUserLocal(username);
+                    onLogin(username);
+                } else {
+                    setError(result.error || 'Invalid username or password');
+                }
             } else {
-                setError('Invalid username or password');
+                const result = await signupUser({ username, passwordHash: password });
+                if (result.success) {
+                    setCurrentUserLocal(username);
+                    onLogin(username);
+                } else {
+                    setError(result.error || 'Failed to create account');
+                }
             }
-        } else {
-            if (users.some(u => u.username === username)) {
-                setError('Username already exists');
-                return;
-            }
-            saveUserCredential({ username, passwordHash: password });
-            setCurrentUserLocal(username);
-            onLogin(username);
+        } catch (err) {
+            setError('Server error. Please try again later.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -70,7 +77,8 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                                 type="text"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
-                                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-icai-blue outline-none transition-all"
+                                disabled={loading}
+                                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-icai-blue outline-none transition-all disabled:opacity-50"
                                 placeholder="Enter your username"
                             />
                         </div>
@@ -84,7 +92,8 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-icai-blue outline-none transition-all"
+                                disabled={loading}
+                                className="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 dark:bg-slate-900 dark:text-white focus:ring-2 focus:ring-icai-blue outline-none transition-all disabled:opacity-50"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -92,12 +101,20 @@ export const Auth: React.FC<AuthProps> = ({ onLogin }) => {
 
                     <button
                         type="submit"
-                        className="w-full bg-icai-blue text-white py-4 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-900 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 mt-4"
+                        disabled={loading}
+                        className="w-full bg-icai-blue text-white py-4 rounded-xl font-bold shadow-lg shadow-blue-500/20 hover:bg-blue-900 hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-70 disabled:hover:translate-y-0"
                     >
-                        {isLogin ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
-                        {isLogin ? 'Sign In' : 'Create Account'}
+                        {loading ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : isLogin ? (
+                            <LogIn className="w-5 h-5" />
+                        ) : (
+                            <UserPlus className="w-5 h-5" />
+                        )}
+                        {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Create Account'}
                     </button>
                 </form>
+
 
                 <div className="mt-8 pt-6 border-t border-slate-100 dark:border-slate-700 text-center">
                     <p className="text-slate-500 dark:text-slate-400 text-sm">

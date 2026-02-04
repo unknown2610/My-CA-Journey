@@ -8,15 +8,22 @@ interface UserCredential {
     passwordHash: string; // Stored as plain text for simplicity in this local version
 }
 
-export const getStoredUsers = (): UserCredential[] => {
-    const users = localStorage.getItem(USERS_KEY);
-    return users ? JSON.parse(users) : [];
+export const signupUser = async (user: UserCredential): Promise<{ success: boolean; error?: string }> => {
+    const response = await fetch('/api/auth', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'signup', ...user }),
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return response.json();
 };
 
-export const saveUserCredential = (user: UserCredential) => {
-    const users = getStoredUsers();
-    users.push(user);
-    localStorage.setItem(USERS_KEY, JSON.stringify(users));
+export const loginUser = async (user: UserCredential): Promise<{ success: boolean; error?: string }> => {
+    const response = await fetch('/api/auth', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'login', ...user }),
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return response.json();
 };
 
 export const setCurrentUserLocal = (username: string | null) => {
@@ -31,11 +38,16 @@ export const getCurrentUserLocal = (): string | null => {
     return localStorage.getItem(CURRENT_USER_KEY);
 };
 
-export const getUserData = (username: string): UserData | null => {
-    const data = localStorage.getItem(`ca_data_${username}`);
-    return data ? JSON.parse(data) : null;
+export const getUserData = async (username: string): Promise<UserData | null> => {
+    const response = await fetch(`/api/data?username=${encodeURIComponent(username)}`);
+    return response.json();
 };
 
-export const saveUserData = (username: string, data: UserData) => {
-    localStorage.setItem(`ca_data_${username}`, JSON.stringify(data));
+export const saveUserData = async (username: string, data: UserData): Promise<{ success: boolean }> => {
+    const response = await fetch(`/api/data?username=${encodeURIComponent(username)}`, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+    });
+    return response.json();
 };

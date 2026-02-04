@@ -3,7 +3,7 @@ import { INITIAL_USER_DATA, INDIAN_STATES } from './constants';
 import { UserData, EntryRoute, CourseLevel, Status } from './types';
 import { Dashboard } from './components/Dashboard';
 import { Auth } from './components/Auth';
-import { Settings, Moon, Sun, ShieldCheck, GraduationCap, LogOut, User } from 'lucide-react';
+import { Settings, Moon, Sun, ShieldCheck, GraduationCap, LogOut, User, Loader2 } from 'lucide-react';
 import { getCurrentUserLocal, getUserData, saveUserData, setCurrentUserLocal } from './utils/userStorage';
 
 const App: React.FC = () => {
@@ -12,29 +12,49 @@ const App: React.FC = () => {
   const [darkMode, setDarkMode] = useState(false);
   const [onboardingStep, setOnboardingStep] = useState(1);
   const [tempUser, setTempUser] = useState<Partial<UserData>>({ ...INITIAL_USER_DATA });
+  const [loading, setLoading] = useState(true);
+  const [syncing, setSyncing] = useState(false);
 
   // Load state from local storage on mount
   useEffect(() => {
-    const user = getCurrentUserLocal();
-    if (user) {
-      setCurrentUser(user);
-      const saved = getUserData(user);
-      if (saved) {
-        setUserData(saved);
+    const initApp = async () => {
+      const user = getCurrentUserLocal();
+      if (user) {
+        setCurrentUser(user);
+        try {
+          const saved = await getUserData(user);
+          if (saved) {
+            setUserData(saved);
+          }
+        } catch (err) {
+          console.error('Failed to load cloud data:', err);
+        }
       }
-    }
-    const theme = localStorage.getItem('ca-theme');
-    if (theme === 'dark') {
-      setDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
+      const theme = localStorage.getItem('ca-theme');
+      if (theme === 'dark') {
+        setDarkMode(true);
+        document.documentElement.classList.add('dark');
+      }
+      setLoading(false);
+    };
+    initApp();
   }, []);
 
   // Save state
   useEffect(() => {
-    if (currentUser && userData) {
-      saveUserData(currentUser, userData);
-    }
+    const syncData = async () => {
+      if (currentUser && userData) {
+        setSyncing(true);
+        try {
+          await saveUserData(currentUser, userData);
+        } catch (err) {
+          console.error('Failed to sync data:', err);
+        } finally {
+          setTimeout(() => setSyncing(false), 1000); // Visual feedback
+        }
+      }
+    };
+    syncData();
   }, [userData, currentUser]);
 
   const handleLogout = () => {
@@ -91,13 +111,34 @@ const App: React.FC = () => {
     setUserData(finalData as UserData);
   };
 
-  const handleLogin = (user: string) => {
+  const handleLogin = async (user: string) => {
+    setLoading(true);
     setCurrentUser(user);
-    const saved = getUserData(user);
-    if (saved) {
-      setUserData(saved);
+    try {
+      const saved = await getUserData(user);
+      if (saved) {
+        setUserData(saved);
+      } else {
+        setUserData(null); // Triggers onboarding
+      }
+    } catch (err) {
+      console.error('Login data fetch error:', err);
+    } finally {
+      setLoading(false);
     }
   };
+
+  // Global Loading State
+  if (loading && currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 text-icai-blue animate-spin" />
+          <p className="text-slate-500 font-medium">Loading your CA Journey...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Auth Screen if not logged in
   if (!currentUser) {
@@ -266,11 +307,17 @@ const App: React.FC = () => {
         </div>
       </nav>
 
-      <div className="max-w-5xl mx-auto px-4 py-2 mb-4">
+      <div className="max-w-5xl mx-auto px-4 py-2 mb-4 flex justify-between items-center">
         <div className="flex items-center gap-2 text-slate-500 text-sm">
           <User className="w-4 h-4" />
           <span>Logged in as: <span className="font-bold text-slate-900 dark:text-white">{currentUser}</span></span>
         </div>
+        {syncing && (
+          <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-emerald-500 animate-pulse">
+            <ShieldCheck className="w-3 h-3" />
+            Cloud Synced
+          </div>
+        )}
       </div>
 
       <Dashboard userData={userData} setUserData={setUserData} />
