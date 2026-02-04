@@ -83,7 +83,7 @@ const App: React.FC = () => {
         <div className="max-w-md w-full bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 border border-slate-200 dark:border-slate-700">
           <div className="text-center mb-8">
             <div className="bg-icai-blue w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg">
-              🇮🇳
+              🎓
             </div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">My CA Journey</h1>
             <p className="text-slate-500 mt-2">Setup your profile</p>
